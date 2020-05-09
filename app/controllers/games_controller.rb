@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'json'
+
 class GamesController < ApplicationController
   def new
     @letters = []
@@ -19,12 +20,19 @@ class GamesController < ApplicationController
       session[:result] = "Congratulations! #{answer.upcase} is a valid word."
       session[:score] = scoring(answer)
     elsif !given_letters?(answer, letters)
-      session[:result] = "Sorry but #{answer.upcase} can't be built out of #{letters}."
+      session[:result] = "Sorry but #{answer.upcase} can't be built out of
+      #{letters}."
       session[:score] = 0
     elsif !valid_word?(word_data)
-      session[:result] = "Sorry but #{answer.upcase} does not seem to be a valid English
-       word."
+      session[:result] = "Sorry but #{answer.upcase} does not seem to be
+      a valid English word."
       session[:score] = 0
+    end
+
+    if session[:grand_score]
+      session[:grand_score] += session[:score]
+    else
+      session[:grand_score] = session[:score]
     end
 
     redirect_to score_path
@@ -33,6 +41,7 @@ class GamesController < ApplicationController
   def score
     @result = session[:result]
     @score = session[:score]
+    @grand_score = session[:grand_score]
   end
 
   private
@@ -47,6 +56,6 @@ class GamesController < ApplicationController
   end
 
   def scoring(word)
-    (word.length + 5) ** 3
+    (word.length + 5)**3
   end
 end
