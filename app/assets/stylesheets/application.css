@@ -17,3 +17,11 @@
 .flex {
   display: flex;
 }
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.justify-center {
+  justify-content: center;
+}
