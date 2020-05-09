@@ -9,10 +9,9 @@ class GamesController < ApplicationController
     session[:letters] = @letters
   end
 
-  def score
+  def compute_score
     @answer = params[:answer]
-    @letters = params[:letters]
-
+    @letters = session[:letters]
     dict_url = "https://wagon-dictionary.herokuapp.com/#{@answer}"
     @word_data = JSON.parse(open(dict_url).read)
 
@@ -25,7 +24,12 @@ class GamesController < ApplicationController
       @result = "Sorry but #{@answer.upcase} does not seem to be a valid English
        word."
     end
-    @test = session[:letters]
+    session[:result] = @result
+    redirect_to score_path
+  end
+
+  def score
+    @result = session[:result]
   end
 
   private
