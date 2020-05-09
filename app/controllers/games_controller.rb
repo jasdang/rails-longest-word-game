@@ -10,26 +10,29 @@ class GamesController < ApplicationController
   end
 
   def compute_score
-    @answer = params[:answer]
-    @letters = session[:letters]
-    dict_url = "https://wagon-dictionary.herokuapp.com/#{@answer}"
-    @word_data = JSON.parse(open(dict_url).read)
+    answer = params[:answer]
+    letters = session[:letters]
+    dict_url = "https://wagon-dictionary.herokuapp.com/#{answer}"
+    word_data = JSON.parse(open(dict_url).read)
 
-    @result = ''
-    if valid_word?(@word_data) && given_letters?(@answer, @letters)
-      @result = "Congratulations! #{@answer.upcase} is a valid word."
-    elsif !given_letters?(@answer, @letters)
-      @result = "Sorry but #{@answer.upcase} can't be built out of #{@letters}."
-    elsif !valid_word?(@word_data)
-      @result = "Sorry but #{@answer.upcase} does not seem to be a valid English
+    if valid_word?(word_data) && given_letters?(answer, letters)
+      session[:result] = "Congratulations! #{answer.upcase} is a valid word."
+      session[:score] = scoring(answer)
+    elsif !given_letters?(answer, letters)
+      session[:result] = "Sorry but #{answer.upcase} can't be built out of #{letters}."
+      session[:score] = 0
+    elsif !valid_word?(word_data)
+      session[:result] = "Sorry but #{answer.upcase} does not seem to be a valid English
        word."
+      session[:score] = 0
     end
-    session[:result] = @result
+
     redirect_to score_path
   end
 
   def score
     @result = session[:result]
+    @score = session[:score]
   end
 
   private
@@ -41,5 +44,9 @@ class GamesController < ApplicationController
   def given_letters?(word, array)
     letters = word.split(//)
     letters.all? { |letter| array.include?(letter.upcase) }
+  end
+
+  def scoring(word)
+    (word.length + 5) ** 3
   end
 end
